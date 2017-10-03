@@ -13,12 +13,22 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
+
+    private List<VocabModel> mDataset= new ArrayList<VocabModel>();
 
     @Bind(R.id.recycler_view)
     protected RecyclerView mRecyclerView;
@@ -49,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         mRecyclerView.setAdapter(adapter);
+
+        setData();
     }
 
     @Override
@@ -72,5 +84,38 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         return super.onCreateOptionsMenu(menu);
+    }
+
+    private void setData() {
+        try {
+            JSONObject obj = new JSONObject(loadJsonFromAsset());
+            JSONArray words = obj.getJSONArray("vocabulary");
+            for (int i = 0; i < words.length(); i++){
+                JSONObject jsonObject = words.getJSONObject(i);
+                String word = jsonObject.getString("word");
+                String desc = jsonObject.getString("description");
+                String group = jsonObject.getString("grouping");
+                mDataset.add(new VocabModel(i, word, desc, group));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String loadJsonFromAsset() {
+        String json = null;
+        try {
+            InputStream is = getAssets().open("vocabulary.json");
+            int size = is.available();
+            byte[] buffer = new byte[size];
+
+            is.read(buffer);
+            is.close();
+            json = new String(buffer, "UTF-8");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+        return json;
     }
 }
