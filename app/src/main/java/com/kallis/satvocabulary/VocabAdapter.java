@@ -30,6 +30,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,30 +40,36 @@ import butterknife.ButterKnife;
 /**
  * TODO: Add a class header comment!
  */
-public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
+public class VocabAdapter extends RecyclerView.Adapter<VocabAdapter.VocabViewHolder> {
 
-    private String[] mDataSet;
+    private ArrayList<VocabModel> mDataSet = new ArrayList<VocabModel>();
     private Map<Integer, Boolean> mFoldStates = new HashMap<>();
     private Context mContext;
 
-    public PhotoAdapter(String[] dataSet, Context context) {
-        mDataSet = dataSet;
+    public VocabAdapter(Context context) {
         mContext = context;
     }
 
-    @Override
-    public PhotoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new PhotoViewHolder(new FoldableLayout(parent.getContext()));
+    public void setDataList(ArrayList<VocabModel> data) {
+        mDataSet.clear();
+        mDataSet.addAll(data);
+    }
+
+    public void clearDataList() {
+        mDataSet.clear();
     }
 
     @Override
-    public void onBindViewHolder(final PhotoViewHolder holder, int position) {
-        final String path = "content://com.kallis.satvocabulary/demo-pictures/" + mDataSet[position];
+    public VocabViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        return new VocabViewHolder(new FoldableLayout(parent.getContext()));
+    }
+
+    @Override
+    public void onBindViewHolder(final VocabViewHolder holder, int position) {
 
         // Bind data
-        Picasso.with(holder.mFoldableLayout.getContext()).load(path).into(holder.mImageViewCover);
-        Picasso.with(holder.mFoldableLayout.getContext()).load(path).into(holder.mImageViewDetail);
-        holder.mTextViewCover.setText(mDataSet[position].replace(".jpg", ""));
+        //Picasso.with(holder.mFoldableLayout.getContext()).load(path).into(holder.mImageViewDetail);
+        holder.mTextViewCover.setText(mDataSet.get(position).getWord());
 
         // Bind state
         if (mFoldStates.containsKey(position)) {
@@ -82,11 +89,11 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
         holder.mButtonShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+/*                Intent shareIntent = new Intent(Intent.ACTION_SEND);
                 shareIntent.setType("image/jpg");
                 Uri uri = Uri.parse(path);
                 shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
-                mContext.startActivity(Intent.createChooser(shareIntent, "Share image using"));
+                mContext.startActivity(Intent.createChooser(shareIntent, "Share image using"));*/
             }
         });
 
@@ -135,26 +142,23 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
     @Override
     public int getItemCount() {
-        return mDataSet.length;
+        return mDataSet.size();
     }
 
-    protected static class PhotoViewHolder extends RecyclerView.ViewHolder {
+    protected static class VocabViewHolder extends RecyclerView.ViewHolder {
 
         protected FoldableLayout mFoldableLayout;
-
-        @Bind(R.id.imageview_cover)
-        protected ImageView mImageViewCover;
-
-        @Bind(R.id.imageview_detail)
-        protected ImageView mImageViewDetail;
 
         @Bind(R.id.textview_cover)
         protected TextView mTextViewCover;
 
+        @Bind(R.id.imageview_detail)
+        protected ImageView mImageViewDetail;
+
         @Bind(R.id.share_button)
         protected Button mButtonShare;
 
-        public PhotoViewHolder(FoldableLayout foldableLayout) {
+        public VocabViewHolder(FoldableLayout foldableLayout) {
             super(foldableLayout);
             mFoldableLayout = foldableLayout;
             foldableLayout.setupViews(R.layout.list_item_cover, R.layout.list_item_detail, R.dimen.card_cover_height, itemView.getContext());

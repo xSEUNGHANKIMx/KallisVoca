@@ -30,10 +30,10 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity implements LoaderCallbacks<ArrayList<VocabModel>> {
 
-    private List<VocabModel> mDataset= new ArrayList<VocabModel>();
     private VocabDao mVocabDao;
     private VocabDBManager mDBManager;
     private Loader<ArrayList<VocabModel>> mLoader;
+    private VocabAdapter mAdapter;
 
     @Bind(R.id.recycler_view)
     protected RecyclerView mRecyclerView;
@@ -48,13 +48,7 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<A
         ButterKnife.bind(this);
         setSupportActionBar(mToolbar);
 
-        String[] dataSet = null;
-        try {
-            dataSet = getAssets().list("demo-pictures");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        PhotoAdapter adapter = new PhotoAdapter(dataSet, this);
+        mAdapter = new VocabAdapter(this);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
@@ -63,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<A
                 outRect.bottom = getResources().getDimensionPixelSize(R.dimen.activity_vertical_margin);
             }
         });
-        mRecyclerView.setAdapter(adapter);
+        mRecyclerView.setAdapter(mAdapter);
 
         mVocabDao = VocabDao.getInstance(this);
         mDBManager = VocabDBManager.getInstance(this);
@@ -94,39 +88,6 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<A
         return super.onCreateOptionsMenu(menu);
     }
 
-    private void setData() {
-        try {
-            JSONObject obj = new JSONObject(loadJsonFromAsset());
-            JSONArray words = obj.getJSONArray("vocabulary");
-            for (int i = 0; i < words.length(); i++){
-                JSONObject jsonObject = words.getJSONObject(i);
-                String word = jsonObject.getString("word");
-                String desc = jsonObject.getString("description");
-                String group = jsonObject.getString("grouping");
-                mDataset.add(new VocabModel(i, word, desc, group, false));
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private String loadJsonFromAsset() {
-        String json = null;
-        try {
-            InputStream is = getAssets().open("vocabulary.json");
-            int size = is.available();
-            byte[] buffer = new byte[size];
-
-            is.read(buffer);
-            is.close();
-            json = new String(buffer, "UTF-8");
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return null;
-        }
-        return json;
-    }
-
     @Override
     public Loader<ArrayList<VocabModel>> onCreateLoader(int id, Bundle args) {
         mLoader = mVocabDao.getLoader();
@@ -135,16 +96,15 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<A
 
     @Override
     public void onLoadFinished(Loader<ArrayList<VocabModel>> loader, ArrayList<VocabModel> data) {
-        mDataset.clear();
 
         if(data.size() > 0) {
-            mDataset.addAll(data);
-
+            mAdapter.setDataList(data);
+            mAdapter.notifyDataSetChanged();
         }
     }
 
     @Override
     public void onLoaderReset(Loader<ArrayList<VocabModel>> loader) {
-        mDataset.clear();
+        mAdapter.clearDataList();
     }
 }

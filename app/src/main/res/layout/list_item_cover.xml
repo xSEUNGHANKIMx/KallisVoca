@@ -29,13 +29,6 @@
             android:textColor="@color/colorPrimary"
             android:gravity="center"
             android:id="@+id/textview_cover"
-            android:layout_width="100dp"
-            android:layout_height="match_parent" />
-
-        <ImageView
-            android:layout_toRightOf="@+id/textview_cover"
-            android:scaleType="centerCrop"
-            android:id="@+id/imageview_cover"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
