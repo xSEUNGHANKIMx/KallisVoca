@@ -1,6 +1,8 @@
 package com.kallis.satvocabulary;
 
 import android.graphics.Rect;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -26,9 +28,12 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoaderCallbacks<ArrayList<VocabModel>> {
 
     private List<VocabModel> mDataset= new ArrayList<VocabModel>();
+    private VocabDao mVocabDao;
+    private VocabDBManager mDBManager;
+    private Loader<ArrayList<VocabModel>> mLoader;
 
     @Bind(R.id.recycler_view)
     protected RecyclerView mRecyclerView;
@@ -60,7 +65,10 @@ public class MainActivity extends AppCompatActivity {
         });
         mRecyclerView.setAdapter(adapter);
 
-        setData();
+        mVocabDao = VocabDao.getInstance(this);
+        mDBManager = VocabDBManager.getInstance(this);
+        getSupportLoaderManager().initLoader(VocabConfig.VOCABULARY_LOADER_ID, null, this);
+        //setData();
     }
 
     @Override
@@ -95,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
                 String word = jsonObject.getString("word");
                 String desc = jsonObject.getString("description");
                 String group = jsonObject.getString("grouping");
-                mDataset.add(new VocabModel(i, word, desc, group));
+                mDataset.add(new VocabModel(i, word, desc, group, false));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -117,5 +125,26 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
         return json;
+    }
+
+    @Override
+    public Loader<ArrayList<VocabModel>> onCreateLoader(int id, Bundle args) {
+        mLoader = mVocabDao.getLoader();
+        return mLoader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<ArrayList<VocabModel>> loader, ArrayList<VocabModel> data) {
+        mDataset.clear();
+
+        if(data.size() > 0) {
+            mDataset.addAll(data);
+
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<ArrayList<VocabModel>> loader) {
+        mDataset.clear();
     }
 }

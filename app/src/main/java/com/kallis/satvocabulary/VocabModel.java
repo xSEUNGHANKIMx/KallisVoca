@@ -1,34 +1,26 @@
 package com.kallis.satvocabulary;
 
 public class VocabModel {
-    int mId;
     String mWord;
     String mDesc;
-    String mGroup;
+    String mGroupping;
     String mListLabel;
+    boolean mIsBookmark;
 
     public VocabModel() {
-        mId = -1;
         mWord = "";
         mDesc = "";
-        mGroup = "";
+        mGroupping = "";
         mListLabel = "";
+        mIsBookmark = false;
     }
 
-    public VocabModel(int id, String word, String desc, String group) {
-        mId = id;
+    public VocabModel(int id, String word, String desc, String group, boolean bBookmark) {
         mWord = word;
         mDesc = desc;
-        mGroup = group;
+        mGroupping = group;
         mListLabel = String.valueOf(word.charAt(0));
-    }
-
-    public int getId() {
-        return mId;
-    }
-
-    public void setId(int id) {
-        this.mId = id;
+        mIsBookmark = bBookmark;
     }
 
     public String getWord() {
@@ -47,12 +39,12 @@ public class VocabModel {
         this.mDesc = desc;
     }
 
-    public String getGroup() {
-        return mGroup;
+    public String getGrouping() {
+        return mGroupping;
     }
 
-    public void setGroup(String group) {
-        this.mGroup = group;
+    public void setGrouping(String grouping) {
+        this.mGroupping = grouping;
     }
 
     public String getListLabel() {
@@ -61,5 +53,13 @@ public class VocabModel {
 
     public void setListLabel(String listLabel) {
         this.mListLabel = listLabel;
+    }
+
+    public boolean isBookmark() {
+        return mIsBookmark;
+    }
+
+    public void setBookmark(boolean bookmark) {
+        this.mIsBookmark = bookmark;
     }
 }
