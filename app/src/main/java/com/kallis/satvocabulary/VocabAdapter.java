@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.kallis.satvocabulary.Database.VocabDao;
 import com.kallis.satvocabulary.Database.VocabModel;
 import com.kallis.satvocabulary.FastScroller.FastScrollRecyclerViewInterface;
 import com.kallis.satvocabulary.FolderbleLayout.FoldableLayout;
@@ -44,9 +45,11 @@ public class VocabAdapter extends RecyclerView.Adapter<VocabAdapter.VocabViewHol
     private Map<Integer, Boolean> mFoldStates = new HashMap<>();
     private HashMap<String, Integer> mMapIndex = new HashMap<>();
     private Context mContext;
+    private VocabDao mVocabDao;
 
     public VocabAdapter(Context context) {
         mContext = context;
+        mVocabDao = VocabDao.getInstance(context);
     }
 
     public void setDataList(ArrayList<VocabModel> data) {
@@ -75,7 +78,8 @@ public class VocabAdapter extends RecyclerView.Adapter<VocabAdapter.VocabViewHol
     }
 
     @Override
-    public void onBindViewHolder(final VocabViewHolder holder, int position) {
+    public void onBindViewHolder(final VocabViewHolder holder, final int position) {
+        VocabModel model = mDataSet.get(position);
 
         // Bind data
         holder.mTextViewWord.setText(mDataSet.get(position).getWord());
@@ -96,10 +100,13 @@ public class VocabAdapter extends RecyclerView.Adapter<VocabAdapter.VocabViewHol
             holder.mFoldableLayout.foldWithoutAnimation();
         }
 
+        holder.mButtonFavorite.setSelected(model.isBookmark());
         holder.mButtonFavorite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                v.setSelected(!v.isSelected());
+                boolean favorite = !v.isSelected();
+                v.setSelected(favorite);
+                mVocabDao.setFavorite(mDataSet.get(position), favorite);
             }
         });
 

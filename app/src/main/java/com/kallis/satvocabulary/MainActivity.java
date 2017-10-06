@@ -1,10 +1,12 @@
 package com.kallis.satvocabulary;
 
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.ContentObserver;
 import android.graphics.Rect;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
@@ -172,6 +174,20 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<A
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        int firstVisiblePosition = 0;
+        LinearLayoutManager layoutmanager = (LinearLayoutManager)mRecyclerView.getLayoutManager();
+        firstVisiblePosition = layoutmanager.findFirstVisibleItemPosition();
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt(VocabConfig.PREFERENCE_LAST_SCROLLED_INDEX, firstVisiblePosition);
+        editor.apply();
+    }
+
+    @Override
     public void onLoadFinished(Loader<ArrayList<VocabModel>> loader, ArrayList<VocabModel> data) {
 
         if(data.size() > 0) {
@@ -185,6 +201,11 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<A
             }
             mAdapter.setDataList(data);
             mAdapter.notifyDataSetChanged();
+
+
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            int firstVisiblePosition = preferences.getInt(VocabConfig.PREFERENCE_LAST_SCROLLED_INDEX, 0);
+            mRecyclerView.scrollToPosition(firstVisiblePosition);
         } else {
             mIndicator.setVisibility(View.VISIBLE);
             mAnim.start();

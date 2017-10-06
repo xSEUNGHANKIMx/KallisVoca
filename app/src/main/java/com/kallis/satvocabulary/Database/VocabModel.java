@@ -1,6 +1,7 @@
 package com.kallis.satvocabulary.Database;
 
 public class VocabModel {
+    int mId;
     String mWord;
     String mDesc;
     String mGroupping;
@@ -9,6 +10,7 @@ public class VocabModel {
     boolean mIsFavorite;
 
     public VocabModel() {
+        mId = -1;
         mWord = "";
         mDesc = "";
         mGroupping = "";
@@ -18,12 +20,21 @@ public class VocabModel {
     }
 
     public VocabModel(int id, String word, String desc, String group, boolean bBookmark, boolean bFavorite) {
+        mId = id;
         mWord = word;
         mDesc = desc;
         mGroupping = group;
         mListLabel = String.valueOf(word.charAt(0));
         mIsBookmark = bBookmark;
         mIsFavorite = bFavorite;
+    }
+
+    public int getId() {
+        return mId;
+    }
+
+    public void setId(int id) {
+        this.mId = id;
     }
 
     public String getWord() {

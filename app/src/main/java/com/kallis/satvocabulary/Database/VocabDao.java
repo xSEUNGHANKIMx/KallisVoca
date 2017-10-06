@@ -1,5 +1,6 @@
 package com.kallis.satvocabulary.Database;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -110,12 +111,56 @@ public class VocabDao {
         VocabModel model = new VocabModel();
         ArrayList<VocabModel> memberList = null;
 
+        model.setId(cursor.getInt(cursor.getColumnIndex(ID)));
         model.setWord(cursor.getString(cursor.getColumnIndex(WORD)));
         model.setDesc(cursor.getString(cursor.getColumnIndex(DESC)));
         model.setGrouping(cursor.getString(cursor.getColumnIndex(GROUPING)));
         model.setBookmark(cursor.getInt(cursor.getColumnIndex(BOOKMARK)) == 1 ? true : false);
 
         return model;
+    }
+
+    public void setFavorite(VocabModel model, boolean bookmark) {
+        if (model == null) {
+            return;
+        }
+
+        VocabDBManager dbMgr = VocabDBManager.getInstance(mAppContext);
+        SQLiteDatabase db = dbMgr.getWritableDB();
+
+        if (db != null) {
+            try {
+                db.beginTransaction();
+                model.setBookmark(bookmark);
+                saveOneSafe(db, model);
+
+                db.setTransactionSuccessful();
+            } finally {
+                notifyContentObserver();
+                db.endTransaction();
+            }
+        }
+    }
+
+    private void saveOneSafe(SQLiteDatabase db, VocabModel model) {
+        if (model == null) {
+            return;
+        }
+
+        final String where = WORD + "=?";
+        final String[] whereArgs = new String[] { model.getWord() };
+        ContentValues values = new ContentValues();
+
+        values.put(ID, model.getId());
+        values.put(WORD, model.getWord());
+        values.put(DESC, model.getDesc());
+        values.put(GROUPING, model.getGrouping());
+        values.put(BOOKMARK, model.isBookmark() == true ? 1 : 0);
+
+        int updatedCount = db.update(TABLE, values, where, whereArgs);
+        if (updatedCount == 0) {
+            db.insert(TABLE, null, values);
+        }
     }
 
     public void migrateDataToSQLiteDB() {
