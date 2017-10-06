@@ -1,6 +1,8 @@
 package com.kallis.satvocabulary;
 
+import android.database.ContentObserver;
 import android.graphics.Rect;
+import android.os.Handler;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
@@ -35,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<A
     private Loader<ArrayList<VocabModel>> mLoader;
     private VocabAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private ContentObserver mDBObserver;
 
     @Bind(R.id.recycler_view)
     protected RecyclerView mRecyclerView;
@@ -75,7 +78,35 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<A
         mVocabDao = VocabDao.getInstance(this);
         mDBManager = VocabDBManager.getInstance(this);
         getSupportLoaderManager().initLoader(VocabConfig.VOCABULARY_LOADER_ID, null, this);
-        //setData();
+        mDBObserver = new ContentObserver(new Handler()) {
+            @Override
+            public void onChange(boolean selfChange) {
+                if (mLoader != null) {
+                    mLoader.startLoading();
+                }
+            }
+        };
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        getContentResolver().registerContentObserver(VocabDao.CONTENT_URI, true, mDBObserver);
+
+        if (mLoader != null) {
+            mLoader.startLoading();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        getContentResolver().unregisterContentObserver(mDBObserver);
+
+        if (mLoader != null) {
+            mLoader.stopLoading();
+        }
     }
 
     private HashMap<String, Integer> calculateIndexesForName(ArrayList<String> items){
@@ -127,6 +158,8 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<A
         if(data.size() > 0) {
             mAdapter.setDataList(data);
             mAdapter.notifyDataSetChanged();
+        } else {
+            mVocabDao.migrateDataToSQLiteDB();
         }
     }
 

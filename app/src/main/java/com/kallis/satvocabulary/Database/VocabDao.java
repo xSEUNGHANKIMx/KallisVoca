@@ -118,26 +118,19 @@ public class VocabDao {
         return model;
     }
 
-    public static boolean isTableExists(SQLiteDatabase db) {
-        boolean isExist = false;
-
-        Cursor cursor = db.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '" + TABLE + "'", null);
-        if (cursor != null) {
-            if (cursor.getCount() > 0) {
-                isExist = true;
-            }
-            cursor.close();
-        }
-        return isExist;
-    }
-
-    public static void migrateDataToSQLiteDB(final SQLiteDatabase db, final ArrayList<VocabModel> datalist) {
+    public void migrateDataToSQLiteDB() {
         new Thread(new Runnable() {
-
             @Override
             public void run() {
+                VocabDBManager dbMgr = VocabDBManager.getInstance(mAppContext);
+                SQLiteDatabase db = dbMgr.getWritableDB();
+                ArrayList<VocabModel> datalist = getData();
                 SQLiteStatement sqlStatement;
                 StringBuffer sql = new StringBuffer();
+
+                // Clear all data on DB
+                db.execSQL("DROP TABLE IF EXISTS " + VocabDao.TABLE);
+                VocabDao.onDbCreate(db);
 
                 sql.append("INSERT INTO " + TABLE + " (")
                         .append(ID + ",")
@@ -171,6 +164,7 @@ public class VocabDao {
                     e.printStackTrace();
                 } finally {
                     if (db != null) {
+                        notifyContentObserver();
                         db.endTransaction();
                     }
                 }
@@ -178,10 +172,10 @@ public class VocabDao {
         }).start();
     }
 
-    public static ArrayList<VocabModel>  getData(Context context) {
+    public ArrayList<VocabModel>  getData() {
         ArrayList<VocabModel> dataset = new ArrayList<VocabModel>();
         try {
-            JSONObject obj = new JSONObject(loadJsonFromAsset(context));
+            JSONObject obj = new JSONObject(loadJsonFromAsset());
             JSONArray words = obj.getJSONArray("vocabulary");
             for (int i = 0; i < words.length(); i++){
                 JSONObject jsonObject = words.getJSONObject(i);
@@ -197,10 +191,10 @@ public class VocabDao {
         return dataset;
     }
 
-    private static String loadJsonFromAsset(Context context) {
+    private String loadJsonFromAsset() {
         String json = null;
         try {
-            InputStream is = context.getAssets().open("vocabulary.json");
+            InputStream is = mAppContext.getAssets().open("vocabulary.json");
             int size = is.available();
             byte[] buffer = new byte[size];
 
@@ -212,5 +206,9 @@ public class VocabDao {
             return null;
         }
         return json;
+    }
+
+    public void notifyContentObserver() {
+        mAppContext.getContentResolver().notifyChange(CONTENT_URI, null);
     }
 }

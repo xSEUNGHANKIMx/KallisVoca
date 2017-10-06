@@ -17,6 +17,7 @@ public class VocabDBManager {
     private final Context mAppContext;
     private volatile VocabDBHelper mHelper;
     private volatile SQLiteDatabase mReadbleDB, mWritableDB;
+    private VocabDao mVocabDao;
 
     public static VocabDBManager getInstance(Context context) {
         if (sInstance == null) {
@@ -32,6 +33,7 @@ public class VocabDBManager {
     private VocabDBManager(Context context) {
         mAppContext = context.getApplicationContext();
         mHelper = new VocabDBHelper(mAppContext);
+        mVocabDao = VocabDao.getInstance(mAppContext);
         openDB();
     }
 
@@ -56,7 +58,7 @@ public class VocabDBManager {
         }
     }
 
-    static class VocabDBHelper extends SQLiteOpenHelper {
+    class VocabDBHelper extends SQLiteOpenHelper {
 
         protected static final int DB_VERSION = 1;
         protected Context mContext;
@@ -74,7 +76,6 @@ public class VocabDBManager {
                 db.setTransactionSuccessful();
             } finally {
                 db.endTransaction();
-                VocabDao.migrateDataToSQLiteDB(db, VocabDao.getData(mContext));
             }
         }
 
