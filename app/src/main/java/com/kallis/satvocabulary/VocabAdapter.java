@@ -17,19 +17,13 @@
 package com.kallis.satvocabulary;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
-
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,10 +34,11 @@ import butterknife.ButterKnife;
 /**
  * TODO: Add a class header comment!
  */
-public class VocabAdapter extends RecyclerView.Adapter<VocabAdapter.VocabViewHolder> {
+public class VocabAdapter extends RecyclerView.Adapter<VocabAdapter.VocabViewHolder> implements FastScrollRecyclerViewInterface {
 
     private ArrayList<VocabModel> mDataSet = new ArrayList<VocabModel>();
     private Map<Integer, Boolean> mFoldStates = new HashMap<>();
+    private HashMap<String, Integer> mMapIndex = new HashMap<>();
     private Context mContext;
 
     public VocabAdapter(Context context) {
@@ -51,8 +46,19 @@ public class VocabAdapter extends RecyclerView.Adapter<VocabAdapter.VocabViewHol
     }
 
     public void setDataList(ArrayList<VocabModel> data) {
-        mDataSet.clear();
-        mDataSet.addAll(data);
+        if(data != null && data.size() > 0) {
+            mDataSet.clear();
+            mDataSet.addAll(data);
+
+            char[] indexer = VocabConfig.INDEX_SCROLLER_STRING.toCharArray() ;
+            for(int i = 0, j = 0; (i < data.size()) && (j < indexer.length); ++i) {
+                char c = Character.toUpperCase(mDataSet.get(i).getWord().charAt(0));
+                if(c == indexer[j]) {
+                    mMapIndex.put(String.valueOf(indexer[j++]), i);
+                }
+            }
+        }
+
     }
 
     public void clearDataList() {
@@ -68,8 +74,8 @@ public class VocabAdapter extends RecyclerView.Adapter<VocabAdapter.VocabViewHol
     public void onBindViewHolder(final VocabViewHolder holder, int position) {
 
         // Bind data
-        //Picasso.with(holder.mFoldableLayout.getContext()).load(path).into(holder.mImageViewDetail);
-        holder.mTextViewCover.setText(mDataSet.get(position).getWord());
+        holder.mTextViewWord.setText(mDataSet.get(position).getWord());
+        holder.mTextViewDesc.setText(mDataSet.get(position).getDesc());
 
         // Bind state
         if (mFoldStates.containsKey(position)) {
@@ -86,14 +92,10 @@ public class VocabAdapter extends RecyclerView.Adapter<VocabAdapter.VocabViewHol
             holder.mFoldableLayout.foldWithoutAnimation();
         }
 
-        holder.mButtonShare.setOnClickListener(new View.OnClickListener() {
+        holder.mButtonFavorite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-/*                Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                shareIntent.setType("image/jpg");
-                Uri uri = Uri.parse(path);
-                shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
-                mContext.startActivity(Intent.createChooser(shareIntent, "Share image using"));*/
+                v.setSelected(!v.isSelected());
             }
         });
 
@@ -145,23 +147,28 @@ public class VocabAdapter extends RecyclerView.Adapter<VocabAdapter.VocabViewHol
         return mDataSet.size();
     }
 
+    @Override
+    public HashMap<String, Integer> getMapIndex() {
+        return this.mMapIndex;
+    }
+
     protected static class VocabViewHolder extends RecyclerView.ViewHolder {
 
         protected FoldableLayout mFoldableLayout;
 
         @Bind(R.id.textview_cover)
-        protected TextView mTextViewCover;
+        protected TextView mTextViewWord;
 
-        @Bind(R.id.imageview_detail)
-        protected ImageView mImageViewDetail;
+        @Bind(R.id.textview_detail)
+        protected TextView mTextViewDesc;
 
         @Bind(R.id.share_button)
-        protected Button mButtonShare;
+        protected Button mButtonFavorite;
 
         public VocabViewHolder(FoldableLayout foldableLayout) {
             super(foldableLayout);
             mFoldableLayout = foldableLayout;
-            foldableLayout.setupViews(R.layout.list_item_cover, R.layout.list_item_detail, R.dimen.card_cover_height, itemView.getContext());
+            foldableLayout.setupViews(R.layout.list_item_word, R.layout.list_item_desc, R.dimen.card_cover_height, itemView.getContext());
             ButterKnife.bind(this, foldableLayout);
         }
     }

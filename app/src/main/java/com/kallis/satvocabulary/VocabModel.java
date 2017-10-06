@@ -6,6 +6,7 @@ public class VocabModel {
     String mGroupping;
     String mListLabel;
     boolean mIsBookmark;
+    boolean mIsFavorite;
 
     public VocabModel() {
         mWord = "";
@@ -13,14 +14,16 @@ public class VocabModel {
         mGroupping = "";
         mListLabel = "";
         mIsBookmark = false;
+        mIsFavorite = false;
     }
 
-    public VocabModel(int id, String word, String desc, String group, boolean bBookmark) {
+    public VocabModel(int id, String word, String desc, String group, boolean bBookmark, boolean bFavorite) {
         mWord = word;
         mDesc = desc;
         mGroupping = group;
         mListLabel = String.valueOf(word.charAt(0));
         mIsBookmark = bBookmark;
+        mIsFavorite = bFavorite;
     }
 
     public String getWord() {
@@ -61,5 +64,13 @@ public class VocabModel {
 
     public void setBookmark(boolean bookmark) {
         this.mIsBookmark = bookmark;
+    }
+
+    public boolean isFavorite() {
+        return mIsFavorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        this.mIsFavorite = favorite;
     }
 }

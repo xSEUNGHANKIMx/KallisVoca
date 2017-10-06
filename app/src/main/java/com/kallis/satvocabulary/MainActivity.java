@@ -6,6 +6,7 @@ import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -23,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import butterknife.Bind;
@@ -34,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<A
     private VocabDBManager mDBManager;
     private Loader<ArrayList<VocabModel>> mLoader;
     private VocabAdapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
 
     @Bind(R.id.recycler_view)
     protected RecyclerView mRecyclerView;
@@ -48,8 +51,10 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<A
         ButterKnife.bind(this);
         setSupportActionBar(mToolbar);
 
-        mAdapter = new VocabAdapter(this);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        mRecyclerView.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
             public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
@@ -57,12 +62,36 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<A
                 outRect.bottom = getResources().getDimensionPixelSize(R.dimen.activity_vertical_margin);
             }
         });
+
+        mAdapter = new VocabAdapter(this);
         mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.addItemDecoration(new FastScrollRecyclerViewItemDecoration(this) {
+            @Override
+            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+                super.getItemOffsets(outRect, view, parent, state);
+                outRect.bottom = getResources().getDimensionPixelSize(R.dimen.activity_vertical_margin);
+            }
+        });
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
         mVocabDao = VocabDao.getInstance(this);
         mDBManager = VocabDBManager.getInstance(this);
         getSupportLoaderManager().initLoader(VocabConfig.VOCABULARY_LOADER_ID, null, this);
         //setData();
+    }
+
+    private HashMap<String, Integer> calculateIndexesForName(ArrayList<String> items){
+        HashMap<String, Integer> mapIndex = new LinkedHashMap<String, Integer>();
+        for (int i = 0; i < items.size(); i++){
+            String name = items.get(i);
+            String index = name.substring(0,1);
+            index = index.toUpperCase();
+
+            if (!mapIndex.containsKey(index)) {
+                mapIndex.put(index, i);
+            }
+        }
+        return mapIndex;
     }
 
     @Override
@@ -106,5 +135,15 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<A
     @Override
     public void onLoaderReset(Loader<ArrayList<VocabModel>> loader) {
         mAdapter.clearDataList();
+    }
+
+    private ArrayList<String> getWordList(ArrayList<VocabModel> list) {
+        ArrayList<String> wordlist = new ArrayList<String>();
+
+        for(VocabModel model : list) {
+            wordlist.add(model.getWord());
+        }
+
+        return wordlist;
     }
 }

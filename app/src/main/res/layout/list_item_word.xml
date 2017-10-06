@@ -15,21 +15,38 @@
   ~ limitations under the License.
   -->
 
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="200dp">
+    android:layout_height="100dp"
+    android:layout_marginEnd="15dp"
+    android:layout_marginRight="15dp">
 
     <RelativeLayout
-        android:background="@android:color/holo_green_dark"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ImageView
-            android:id="@+id/imageview_detail"
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="centerCrop" />
+            android:textStyle="bold"
+            android:textSize="35dp"
+            android:textColor="@color/colorPrimary"
+            android:background="#F0FFFF"
+            android:gravity="center"
+            android:id="@+id/textview_cover" />
+
+        <Button
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_margin="10dp"
+            android:padding="20dp"
+            android:id="@+id/share_button"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/favorite_button_selector"/>
 
     </RelativeLayout>
+
 
 </android.support.v7.widget.CardView>

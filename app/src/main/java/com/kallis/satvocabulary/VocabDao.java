@@ -191,7 +191,7 @@ public class VocabDao {
                 String word = jsonObject.getString("word");
                 String desc = jsonObject.getString("description");
                 String group = jsonObject.getString("grouping");
-                dataset.add(new VocabModel(i, word, desc, group, false));
+                dataset.add(new VocabModel(i, word, desc, group, false, false));
             }
         } catch (JSONException e) {
             e.printStackTrace();
