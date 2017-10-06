@@ -1,4 +1,4 @@
-package com.kallis.satvocabulary;
+package com.kallis.satvocabulary.Database;
 
 public class VocabModel {
     String mWord;

@@ -1,4 +1,4 @@
-package com.kallis.satvocabulary;
+package com.kallis.satvocabulary.Database;
 
 import android.content.Context;
 import android.database.SQLException;

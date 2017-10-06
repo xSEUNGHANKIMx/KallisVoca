@@ -1,4 +1,4 @@
-package com.kallis.satvocabulary;
+package com.kallis.satvocabulary.Database;
 
 import android.support.v4.content.AsyncTaskLoader;
 import android.content.Context;

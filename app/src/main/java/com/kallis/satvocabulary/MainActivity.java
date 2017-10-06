@@ -16,16 +16,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.kallis.satvocabulary.Database.VocabDBManager;
+import com.kallis.satvocabulary.Database.VocabDao;
+import com.kallis.satvocabulary.Database.VocabModel;
+import com.kallis.satvocabulary.FastScroller.FastScrollRecyclerViewItemDecoration;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;

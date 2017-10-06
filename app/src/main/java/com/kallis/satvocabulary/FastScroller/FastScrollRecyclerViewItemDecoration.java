@@ -1,10 +1,12 @@
-package com.kallis.satvocabulary;
+package com.kallis.satvocabulary.FastScroller;
 
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.support.v7.widget.RecyclerView;
+
+import com.kallis.satvocabulary.R;
 
 public class FastScrollRecyclerViewItemDecoration extends RecyclerView.ItemDecoration{
     private Context mContext;

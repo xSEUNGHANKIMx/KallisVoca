@@ -19,11 +19,6 @@
             </intent-filter>
         </activity>
 
-        <provider
-            android:name="com.kallis.satvocabulary.AssetProvider"
-            android:authorities="com.kallis.satvocabulary"
-            android:grantUriPermissions="true"
-            android:exported="true" />
     </application>
 
 </manifest>

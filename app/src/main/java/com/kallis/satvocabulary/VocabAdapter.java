@@ -24,6 +24,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.kallis.satvocabulary.Database.VocabModel;
+import com.kallis.satvocabulary.FastScroller.FastScrollRecyclerViewInterface;
+import com.kallis.satvocabulary.FolderbleLayout.FoldableLayout;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;

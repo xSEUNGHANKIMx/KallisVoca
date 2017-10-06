@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.kallis.satvocabulary;
+package com.kallis.satvocabulary.FolderbleLayout;
 
 import android.animation.Animator;
 import android.animation.TimeInterpolator;
@@ -33,10 +33,11 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+
+import com.kallis.satvocabulary.R;
 
 
 /**

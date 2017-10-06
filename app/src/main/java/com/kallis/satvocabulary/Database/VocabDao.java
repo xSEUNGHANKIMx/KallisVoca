@@ -1,7 +1,6 @@
-package com.kallis.satvocabulary;
+package com.kallis.satvocabulary.Database;
 
 import android.content.Context;
-import android.content.Loader;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -17,8 +16,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by Administrator on 2017-10-04.

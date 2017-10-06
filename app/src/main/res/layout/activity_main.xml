@@ -22,7 +22,7 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <com.kallis.satvocabulary.FastScrollRecyclerView
+    <com.kallis.satvocabulary.FastScroller.FastScrollRecyclerView
         android:layout_below="@+id/appbar"
         android:paddingTop="@dimen/activity_vertical_margin"
         android:paddingLeft="@dimen/activity_horizontal_margin"
