@@ -159,6 +159,7 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<A
             mAdapter.setDataList(data);
             mAdapter.notifyDataSetChanged();
         } else {
+
             mVocabDao.migrateDataToSQLiteDB();
         }
     }
