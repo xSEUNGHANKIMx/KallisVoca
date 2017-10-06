@@ -1,7 +1,9 @@
 package com.kallis.satvocabulary;
 
+import android.content.res.Configuration;
 import android.database.ContentObserver;
 import android.graphics.Rect;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Handler;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
@@ -17,6 +19,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import com.kallis.satvocabulary.Database.VocabDBManager;
 import com.kallis.satvocabulary.Database.VocabDao;
@@ -38,6 +42,8 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<A
     private VocabAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private ContentObserver mDBObserver;
+    private ImageView mIndicator;
+    private AnimationDrawable mAnim;
 
     @Bind(R.id.recycler_view)
     protected RecyclerView mRecyclerView;
@@ -86,6 +92,19 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<A
                 }
             }
         };
+
+        mIndicator = (ImageView) findViewById(R.id.initial_loading_anim);
+        mAnim = (AnimationDrawable) mIndicator.getDrawable();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+            if(mAnim.isRunning()) {
+                mAnim.stop();
+                mAnim.start();
+            }
     }
 
     @Override
@@ -156,10 +175,19 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<A
     public void onLoadFinished(Loader<ArrayList<VocabModel>> loader, ArrayList<VocabModel> data) {
 
         if(data.size() > 0) {
+            if(mAnim.isRunning()) {
+                mIndicator.setVisibility(View.GONE);
+                mAnim.stop();
+            }
+
+            if(mRecyclerView.getVisibility() != View.VISIBLE) {
+                mRecyclerView.setVisibility(View.VISIBLE);
+            }
             mAdapter.setDataList(data);
             mAdapter.notifyDataSetChanged();
         } else {
-
+            mIndicator.setVisibility(View.VISIBLE);
+            mAnim.start();
             mVocabDao.migrateDataToSQLiteDB();
         }
     }

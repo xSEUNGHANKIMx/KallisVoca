@@ -23,14 +23,25 @@
     </android.support.design.widget.AppBarLayout>
 
     <com.kallis.satvocabulary.FastScroller.FastScrollRecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/recycler_view"
         android:layout_below="@+id/appbar"
         android:paddingTop="@dimen/activity_vertical_margin"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
-        android:id="@+id/recycler_view"
         android:clipToPadding="false"
         android:clipChildren="false"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/initial_loading_anim"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        android:src="@drawable/initial_loading_anim"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone"/>
 
 </RelativeLayout>

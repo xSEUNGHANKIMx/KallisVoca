@@ -31,7 +31,7 @@ public class SplashActivity extends Activity {
                     startActivity(new Intent(SplashActivity.this, MainActivity.class));
                     finish();
                 }
-            }, 5000);
+            }, 4300);
 
             splashLoaded = true;
         }
