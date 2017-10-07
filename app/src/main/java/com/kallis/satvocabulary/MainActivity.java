@@ -1,10 +1,13 @@
 package com.kallis.satvocabulary;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.ContentObserver;
 import android.graphics.Rect;
 import android.graphics.drawable.AnimationDrawable;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -17,10 +20,13 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.TextureView;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
@@ -41,11 +47,13 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<A
     private VocabDao mVocabDao;
     private VocabDBManager mDBManager;
     private Loader<ArrayList<VocabModel>> mLoader;
+    private ArrayList<VocabModel> mDataSet = new ArrayList<>();
     private VocabAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private ContentObserver mDBObserver;
     private ImageView mIndicator;
     private AnimationDrawable mAnim;
+    protected String mSearchInputString = "";
 
     @Bind(R.id.recycler_view)
     protected RecyclerView mRecyclerView;
@@ -154,17 +162,97 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<A
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-
                 searchView.clearFocus();
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                setFilterText(newText);
                 return false;
             }
         });
         return super.onCreateOptionsMenu(menu);
+    }
+
+    void setFilterText(String text) {
+        new VocabListFilterTask().execute(text.toLowerCase());
+    }
+
+    class VocabListFilterTask extends AsyncTask<String, Void, ArrayList<VocabModel>> {
+
+        @Override
+        protected void onPreExecute() {
+            mRecyclerView.setAdapter(null);
+            super.onPreExecute();
+        }
+
+        @Override
+        protected ArrayList<VocabModel> doInBackground(String... params) {
+            mSearchInputString = params[0];
+
+            if (!TextUtils.isEmpty(mSearchInputString)) {
+                ArrayList<VocabModel> filteredList = new ArrayList<VocabModel>();
+
+                for (VocabModel model : mDataSet) {
+                    if (model != null) {
+                        int machedCount = 0;
+
+                        if (findWordMachedString(model)) {
+                            machedCount++;
+                        } else {
+                            model.setSearchMatchedStart(-1);
+                            model.setSearchMatchedEnd(-1);
+                        }
+
+                        if (machedCount > 0) {
+                            filteredList.add(model);
+                        }
+                    }
+                }
+
+                return filteredList;
+            } else {
+                return mDataSet;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<VocabModel> result) {
+
+            mRecyclerView.setAdapter(mAdapter);
+            mAdapter.setDataList(result);
+            mAdapter.notifyDataSetChanged();
+
+            if (!result.isEmpty()) {
+                if (!TextUtils.isEmpty(mSearchInputString)) {
+                    mRecyclerView.scrollToPosition(0);
+                }
+            }
+        }
+
+        private boolean findWordMachedString(VocabModel model) {
+            if (model == null) {
+                return false;
+            }
+
+            String word = model.getWord();
+            boolean bIsMached = false;
+
+            if (word.length() >= mSearchInputString.length()) {
+                int start = -1, end = -1, offset = 0;
+                if (word.indexOf(mSearchInputString) >= 0) {
+                    start = word.indexOf(mSearchInputString);
+                    end = start + mSearchInputString.length();
+
+                    model.setSearchMatchedStart(start);
+                    model.setSearchMatchedEnd(end);
+                    bIsMached = true;
+                }
+            }
+
+            return bIsMached;
+        }
     }
 
     @Override
@@ -177,14 +265,16 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<A
     protected void onDestroy() {
         super.onDestroy();
 
-        int firstVisiblePosition = 0;
-        LinearLayoutManager layoutmanager = (LinearLayoutManager)mRecyclerView.getLayoutManager();
-        firstVisiblePosition = layoutmanager.findFirstVisibleItemPosition();
+        if(TextUtils.isEmpty(mSearchInputString)) {
+            int firstVisiblePosition = 0;
+            LinearLayoutManager layoutmanager = (LinearLayoutManager) mRecyclerView.getLayoutManager();
+            firstVisiblePosition = layoutmanager.findFirstVisibleItemPosition();
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt(VocabConfig.PREFERENCE_LAST_SCROLLED_INDEX, firstVisiblePosition);
-        editor.apply();
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putInt(VocabConfig.PREFERENCE_LAST_SCROLLED_INDEX, firstVisiblePosition);
+            editor.apply();
+        }
     }
 
     @Override
@@ -199,13 +289,24 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<A
             if(mRecyclerView.getVisibility() != View.VISIBLE) {
                 mRecyclerView.setVisibility(View.VISIBLE);
             }
-            mAdapter.setDataList(data);
-            mAdapter.notifyDataSetChanged();
 
+            boolean bInitialLoading = mDataSet.size() == 0 ? true : false;
 
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-            int firstVisiblePosition = preferences.getInt(VocabConfig.PREFERENCE_LAST_SCROLLED_INDEX, 0);
-            mRecyclerView.scrollToPosition(firstVisiblePosition);
+            mDataSet.clear();
+            mDataSet.addAll(data);
+
+            if(TextUtils.isEmpty(mSearchInputString)) {
+                mAdapter.setDataList(data);
+                mAdapter.notifyDataSetChanged();
+
+                if(bInitialLoading) {
+                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+                    int firstVisiblePosition = preferences.getInt(VocabConfig.PREFERENCE_LAST_SCROLLED_INDEX, 0);
+                    mRecyclerView.scrollToPosition(firstVisiblePosition);
+                }
+            } else {
+                setFilterText(mSearchInputString);
+            }
         } else {
             mIndicator.setVisibility(View.VISIBLE);
             mAnim.start();

@@ -5,16 +5,18 @@ public class VocabModel {
     String mWord;
     String mDesc;
     String mGroupping;
-    String mListLabel;
     boolean mIsBookmark;
     boolean mIsFavorite;
+
+    // for application. Not on DB.
+    int mSearchMatchedStart;
+    int mSearchMatchedEnd;
 
     public VocabModel() {
         mId = -1;
         mWord = "";
         mDesc = "";
         mGroupping = "";
-        mListLabel = "";
         mIsBookmark = false;
         mIsFavorite = false;
     }
@@ -24,7 +26,6 @@ public class VocabModel {
         mWord = word;
         mDesc = desc;
         mGroupping = group;
-        mListLabel = String.valueOf(word.charAt(0));
         mIsBookmark = bBookmark;
         mIsFavorite = bFavorite;
     }
@@ -61,14 +62,6 @@ public class VocabModel {
         this.mGroupping = grouping;
     }
 
-    public String getListLabel() {
-        return mListLabel;
-    }
-
-    public void setListLabel(String listLabel) {
-        this.mListLabel = listLabel;
-    }
-
     public boolean isBookmark() {
         return mIsBookmark;
     }
@@ -83,5 +76,20 @@ public class VocabModel {
 
     public void setFavorite(boolean favorite) {
         this.mIsFavorite = favorite;
+    }
+
+    public int getSearchMatchedStart() {
+        return mSearchMatchedStart;
+    }
+
+    public void setSearchMatchedStart(int start) {
+        this.mSearchMatchedStart = start;
+    }
+    public int getSearchMatchedEnd() {
+        return mSearchMatchedEnd;
+    }
+
+    public void setSearchMatchedEnd(int end) {
+        this.mSearchMatchedEnd = end;
     }
 }

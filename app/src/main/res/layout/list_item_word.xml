@@ -34,7 +34,7 @@
             android:textColor="@color/colorPrimary"
             android:background="#F0FFFF"
             android:gravity="center"
-            android:id="@+id/textview_cover" />
+            android:id="@+id/textview_word" />
 
         <Button
             android:layout_width="30dp"

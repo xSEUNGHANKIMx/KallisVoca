@@ -16,11 +16,17 @@
 
 package com.kallis.satvocabulary;
 
+import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -53,8 +59,9 @@ public class VocabAdapter extends RecyclerView.Adapter<VocabAdapter.VocabViewHol
     }
 
     public void setDataList(ArrayList<VocabModel> data) {
+        mDataSet.clear();
+
         if(data != null && data.size() > 0) {
-            mDataSet.clear();
             mDataSet.addAll(data);
 
             char[] indexer = VocabConfig.INDEX_SCROLLER_STRING.toCharArray() ;
@@ -65,7 +72,6 @@ public class VocabAdapter extends RecyclerView.Adapter<VocabAdapter.VocabViewHol
                 }
             }
         }
-
     }
 
     public void clearDataList() {
@@ -83,6 +89,18 @@ public class VocabAdapter extends RecyclerView.Adapter<VocabAdapter.VocabViewHol
 
         // Bind data
         holder.mTextViewWord.setText(mDataSet.get(position).getWord());
+        if ((model.getSearchMatchedStart() >= 0) && (model.getSearchMatchedEnd() >= 0)) {
+            if (!TextUtils.isEmpty(((MainActivity)mContext).mSearchInputString)) {
+                SpannableString str = new SpannableString(mDataSet.get(position).getWord());
+                str.setSpan(new ForegroundColorSpan(Color.RED), model.getSearchMatchedStart(), model
+                        .getSearchMatchedEnd(), 0);
+                holder.mTextViewWord.setText(str);
+            } else {
+                model.setSearchMatchedStart(-1);
+                model.setSearchMatchedEnd(-1);
+            }
+        }
+
         holder.mTextViewDesc.setText(mDataSet.get(position).getDesc());
 
         // Bind state
@@ -167,10 +185,10 @@ public class VocabAdapter extends RecyclerView.Adapter<VocabAdapter.VocabViewHol
 
         protected FoldableLayout mFoldableLayout;
 
-        @Bind(R.id.textview_cover)
+        @Bind(R.id.textview_word)
         protected TextView mTextViewWord;
 
-        @Bind(R.id.textview_detail)
+        @Bind(R.id.textview_desc)
         protected TextView mTextViewDesc;
 
         @Bind(R.id.share_button)
