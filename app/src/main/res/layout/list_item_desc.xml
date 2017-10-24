@@ -22,7 +22,7 @@
     android:layout_marginRight="15dp">
 
     <RelativeLayout
-        android:background="@android:color/holo_blue_light"
+        android:background="@android:color/holo_green_light"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -30,7 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:textStyle="bold"
-            android:textColor="@color/colorPrimary"
+            android:textColor="@android:color/white"
             android:gravity="center"
             android:id="@+id/textview_desc"
             android:textSize="20dp" />
